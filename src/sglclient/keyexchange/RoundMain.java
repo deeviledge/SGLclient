@@ -4,11 +4,12 @@ import java.math.BigInteger;
 
 import sglclient.groupadmin.GroupSend;
 import sglclient.myinformation.MyInformation;
+import sglclient.option.EditOptionXml;
 
 public class RoundMain {
 	
 	public int round;
-	private final int Round_Port = 12766;
+	private int Round_Port = 12766;
 	ExchangeKey exKey;
 	GroupSend gs;
 	/**
@@ -25,9 +26,14 @@ public class RoundMain {
 			exKey.generateSecretKey();
 		}
 		else{
-			BigInteger sk = new BigInteger(gs.getKey());
-			//前のラウンドの共有鍵を秘密鍵にする
-			exKey.refreshKey(sk);
+                        try{
+                            BigInteger sk = new BigInteger(gs.getKey());
+                            //前のラウンドの共有鍵を秘密鍵にする
+                            exKey.refreshKey(sk);
+                        }catch(Exception e){
+                            e.printStackTrace();
+                        }
+
 		}
 	}
 	
@@ -53,16 +59,20 @@ public class RoundMain {
 		int SendToID;
 		int ReceiveFromID;
 		//もっとエレガントに書けそう。気が向いたら、書き直します。
+                System.out.println("鍵交換相手の変数を宣言まではできたよ");
 		if(peer.getRoundList( round ).getbehavior().equals("Exchange")){
 			System.out.println("Round "+(round+1)+":Exchange");
+                        try{
                         
+//テスト用にコメントアウト                       
+/*			//送信するPeerの数が一人のとき
+			if(peer.getRoundList(round).getSendTo().getListSize()==1){	
                         
-			//送信するPeerの数が一人のとき
-			if(peer.getRoundList(round).getSendTo().getListSize()==1){					
+                        コメントアウト*/
 				SendToID = peer.getRoundList(round).getSendTo().getPeerList(0).getID();	//送信する相手のIDを取得
 				SendToIP = peer.getRoundList(round).getSendTo().getPeerList(0).getIP();	//IPを取得
-                                
-                                //自分がダミーのとき
+                        /*        
+                                //パターン①自分がダミーのとき
 				if(SendToID<0){		
 					System.out.println("ダミーユーザです。公開鍵受け取り待ち");
 					GetPKey GP = new GetPKey(Round_Port);
@@ -77,12 +87,25 @@ public class RoundMain {
 					}
 				}
 				
-				//先に自分の公開鍵を送る
-				else if(myid<SendToID){
+				//パターン②先に自分の公開鍵を送る
+                                else if(myid<SendToID){
 					System.out.println("User "+SendToID+"と交換します");
 					Wait();	//通信相手ポートをオープンするまで少し待つ
 					exKey.calculatePublicKey();	//公開鍵を計算
 					SendFrom SF = new SendFrom(SendToIP,Round_Port);		//公開鍵を交換
+                                        
+                                        */
+                                        //if(不正検知オプション＝＝ON){//不正検知オプションがONの時の処理
+                                            String serverIP=new EditOptionXml().getIP();
+                                            Round_Port=Integer.parseInt("5"+mi.getUsrID());
+                                            System.out.println(mi.getUsrID()+":"+Round_Port);
+                                            SendFrom SF=new SendFrom(SendToIP,serverIP,Round_Port);
+                                        //}else{//不正検知オプションがOFFのときの処理
+                                        //    SendFrom SF = new SendFrom(SendToIP,Round_Port);		//公開鍵を交換
+                                        //}
+                                        /*
+                                        
+                                        
 					String line = SF.KeyExchange(exKey.getPublicKey());		//受信した公開鍵を取得
 					//　受信したものが公開鍵と確認できれば共通鍵の計算
 					if( line.substring(0,3).equals("pk:") ){
@@ -94,7 +117,7 @@ public class RoundMain {
 					}
 				}
                                 
-				//先に相手の公開鍵を受け取る
+				//パターン③先に相手の公開鍵を受け取る
 				else if(myid>SendToID){
 					System.out.println("User "+SendToID+"と交換します");
 					exKey.calculatePublicKey();	//公開鍵を計算
@@ -116,7 +139,7 @@ public class RoundMain {
 			else if(peer.getRoundList(round).getSendTo().getListSize()==2){
 				ReceiveFromID = peer.getRoundList(round).getReceiveFrom().getID();	//受信する相手のIDを取得
 				ReceiveFromIP = peer.getRoundList(round).getReceiveFrom().getIP();	//受信する相手のIPを取得
-				//先に自分の公開鍵を送る
+				//パターン④先に自分の公開鍵を送る
 				if(myid<ReceiveFromID){
 					System.out.println("User "+ReceiveFromID+"と交換します");
 					Wait();	//通信相手がポートをオープンするまで少し待つ
@@ -132,7 +155,7 @@ public class RoundMain {
 						//System.out.println("共通鍵:"+ exKey.getKey());
 					}
 				}
-				//先に相手の公開鍵を受け取る
+				//パターン⑤先に相手の公開鍵を受け取る
 				else if(myid>ReceiveFromID){
 					System.out.println("User "+ReceiveFromID+"と交換します");
 					exKey.calculatePublicKey();	//公開鍵を計算
@@ -156,17 +179,33 @@ public class RoundMain {
 				
 			}
 		}
+                        
+                  */                          
+                        }catch(Exception e){
+                                e.printStackTrace();
+                                System.out.println("なんかあった！");
+                        }                            
+                                            
+                    /*                        
+                        
 		else if(peer.getRoundList( round ).getbehavior().equals("Wait")){
-			exKey.renewalKey();	//秘密鍵をそのまま、次のラウンドの秘密鍵にする(秘密鍵を共通鍵として保存).
+//テスト用にコメントアウト			exKey.renewalKey();	//秘密鍵をそのまま、次のラウンドの秘密鍵にする(秘密鍵を共通鍵として保存).
 			System.out.println("Round "+(round+1)+":Wait");
+*/                        
 		}
-		
-		try {
-			gs.SaveKey(""+exKey.getKey());	//GroupSend.xmlに中間鍵を保存
-		} catch (Exception e) {
-			// TODO 自動生成された catch ブロック
-			e.printStackTrace();
-		}
+
+                
+//テスト用にコメントアウト                
+//		try {
+//			gs.SaveKey(""+exKey.getKey());	//GroupSend.xmlに中間鍵を保存
+//		} catch (Exception e) {
+//			// TODO 自動生成された catch ブロック
+//			e.printStackTrace();
+//		}
+                        
+                        
+                        
+                
 	}
 	/**
 	 * 待ち時間をつくる
