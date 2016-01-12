@@ -426,6 +426,8 @@ public class CustomBrowserController extends CustomBrowser implements Initializa
         */
         @FXML
 	void handleGroupEditButtonAction(ActionEvent event) throws IOException {
+            
+            /*
             try{
                 ServerSocket ssoc = new ServerSocket(12345,100);//接続
                 ssoc.close();
@@ -445,6 +447,8 @@ public class CustomBrowserController extends CustomBrowser implements Initializa
                 System.err.println(e);
             }
             catch (IOException e) { 
+                
+                */
                 FXMLLoader loader=new FXMLLoader(getClass().getResource("groupinformation/SGLGroup.fxml"));
                 loader.load();
                 Parent root = loader.getRoot();
@@ -455,7 +459,7 @@ public class CustomBrowserController extends CustomBrowser implements Initializa
                 groupdialog.setTitle("グループ管理");
                 groupdialog.showAndWait();
                 
-            }
+            //}
             
             
 	}
